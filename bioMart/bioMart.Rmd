@@ -10,9 +10,8 @@ output:
     toc_depth: 3
     number_section: true
     fig_caption: true
-    table: paged
     df_print: paged
-biblography: ref.bib
+bibliography: ref.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -31,7 +30,7 @@ library(biomaRt)
 listMarts()
 ```
 
-如果此时遇到代理的问题，详看`biomaRt`的官方教程[@ulwvfje_rdeseq2rna-seq_nodate]。
+如果此时遇到代理的问题，详看`biomaRt`的官方教程[@durinck_biomart_nodate]。
 
 接下来选数据库。我们选ensembl。
 
@@ -63,16 +62,40 @@ ensembl <- useMart('ensembl', dataset = 'hsapiens_gene_ensembl')
 
 ```{r results='asis'}
 filters <- listFilters(ensembl)
-filters[1:5,]
+filters
 ```
 
 filters就是筛选条件。
 
 ```{r}
 attributes <- listAttributes(ensembl)
-attributes[1:5,]
+attributes
 ```
 
 attributes是一些感兴趣的内容，如基因名、染色体位置等。
+
+`getBM()`是主要的查询函数，有4个主参数：
+
+* `attributes`：一个向量，包含各种你想要的属性；
+
+* `filters`：一个向量，包含各种查询条件；
+
+* `values`：一个向量，包含各种取值，顺序要跟`filters`相对应（见下例）；
+
+* `mart`：即`Mart`对象，通过之前的`useMart()`生成。
+
+另，有些人们常用的查询，也已经打包成了函数，如`getGene()`、`getSequence()`。这些函数也是通过`getBM()`来实现其功能。
+
+现在我们选好了数据库和数据集，也知道了属性、筛选器及其取值，就可建立查询了。先看一个简单的问题：我们有一组Affymetrix的ID，来自u133plus2平台，现在想要找到对应的EntrezGene ID。
+
+那么u133plus2就是`filter`，`value`就是我们的那些Affymetrix ID。而输出（`attributes`）就是要同时有u133plus2和EntrezGene，这样就能映射匹配了。
+
+```{r}
+affyids <- c("202763_at","209310_s_at","207500_at")
+getBM(attributes=c('affy_hg_u133_plus_2', 'entrezgene', 'hgnc_symbol'), 
+      filters = 'affy_hg_u133_plus_2', 
+      values = affyids, 
+      mart = ensembl)
+```
 
 # References
