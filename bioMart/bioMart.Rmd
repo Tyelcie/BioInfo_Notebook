@@ -1,0 +1,73 @@
+---
+title: "Title"
+auther: ""
+output:
+  html_document:
+    highlight: pygments
+    css: vscode.css
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    number_section: true
+    fig_caption: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = TRUE, fig.align = 'center')
+```
+
+# 启动
+
+```{r,message=FALSE}
+library(biomaRt)
+```
+
+# 选择一个BioMart数据库和数据集
+
+```{r}
+listMarts()
+```
+
+如果此时遇到代理的问题，详看`biomaRt`的官方教程。
+
+接下来选数据库。我们选ensembl。
+
+```{r message = FALSE}
+ensembl <- useMart('ensembl')
+```
+
+一个数据库中可能包含多个数据集，对于ensembl来说，每个物种都建有一个数据集。下面就看看都有哪些可用。
+
+```{r}
+listDatasets(ensembl)
+```
+
+然后更新一下`ensembl`，选一个数据集。
+
+```{r}
+ensembl <- useDataset('hsapiens_gene_ensembl', mart = ensembl)
+```
+
+或者，如果事先已经很明确这个数据集的写法，就可以从开始时直接找它：
+
+```{r eval = FALSE}
+ensembl <- useMart('ensembl', dataset = 'hsapiens_gene_ensembl')
+```
+
+# 建立biomaRt查询
+
+建立查询用的`getBM()`有三个参数要填，分别是`filters`，`attributes`，`values`。可选的值也可以分别用函数查看。
+
+```{r}
+filters <- listFilters(ensembl)
+filters[1:5,]
+```
+
+filters就是筛选条件。
+
+```{r}
+attributes <- listAttributes(ensembl)
+attributes[1:5,]
+```
+
+attributes是一些感兴趣的内容，如基因名、染色体位置等。
