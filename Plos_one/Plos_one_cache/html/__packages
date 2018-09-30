@@ -1,0 +1,13 @@
+base
+RTCGAToolbox
+BiocGenerics
+Biobase
+GEOquery
+ggplot2
+bindrcpp
+TCGAutils
+magrittr
+ggpubr
+survival
+corrr
+tidyr

@@ -10,6 +10,9 @@ output:
     toc_depth: 3
     number_section: true
     fig_caption: true
+    table: paged
+    df_print: paged
+biblography: ref.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -28,7 +31,7 @@ library(biomaRt)
 listMarts()
 ```
 
-如果此时遇到代理的问题，详看`biomaRt`的官方教程。
+如果此时遇到代理的问题，详看`biomaRt`的官方教程[@ulwvfje_rdeseq2rna-seq_nodate]。
 
 接下来选数据库。我们选ensembl。
 
@@ -58,7 +61,7 @@ ensembl <- useMart('ensembl', dataset = 'hsapiens_gene_ensembl')
 
 建立查询用的`getBM()`有三个参数要填，分别是`filters`，`attributes`，`values`。可选的值也可以分别用函数查看。
 
-```{r}
+```{r results='asis'}
 filters <- listFilters(ensembl)
 filters[1:5,]
 ```
@@ -71,3 +74,5 @@ attributes[1:5,]
 ```
 
 attributes是一些感兴趣的内容，如基因名、染色体位置等。
+
+# References

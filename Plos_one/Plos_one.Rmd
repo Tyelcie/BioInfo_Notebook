@@ -1,0 +1,413 @@
+---
+title: "PlosOne"
+auther: ""
+output:
+  html_document:
+    highlight: pygments
+    css: vscode.css
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    number_section: true
+    fig_caption: true
+bibliography: ../doc/ref.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = FALSE, fig.align = 'center', out.width = '80%')
+```
+
+# 启动
+
+```{r message = FALSE}
+library(RTCGAToolbox)
+library(TCGAutils)
+library(GEOquery)
+library(ggplot2)
+library(ggpubr)
+library(survival)
+library(survminer)
+library(corrr)
+library(tidyr)
+```
+
+本文参考[@zhang_overexpression_2017]。
+
+查文献得来一个感兴趣的分子，NRARP。blablabla背景之后，假设在PTC中，NRARP被激活，并诱发肿瘤进展。此种假设让作者们去探索TCGA-THCA数据集，以及另一个独立的PTC表达数据集（GSE64912）。
+
+这两份数据都展示了NRARP会与NOTCH信号通路发生互作，诱导EMT，导致临床预后不良。
+
+我们的分析表明，NRARP表达与临床相关，并且可能提高患者护理、个体化医疗水平……
+
+# 下载
+
+```{r message = FALSE,eval = FALSE}
+data_tcga <- getFirehoseData('THCA', destdir = '../data/', RNASeq2GeneNorm = TRUE)
+data_geo <- getGEO('GSE64912', destdir = '../data/')
+data_geo <- data_geo$GSE64912_series_matrix.txt.gz
+```
+
+然后可以保存成`.rds`，便于以后读取。
+
+```{r eval = FALSE}
+saveRDS(data_tcga, '../data/data_tcga.rds')
+saveRDS(data_geo, '../data/data_geo.rds')
+```
+
+下次就载入就可以了：
+
+```{r}
+data_tcga <- readRDS('../data/data_tcga.rds')
+data_geo <- readRDS('../data/data_geo.rds')
+```
+
+# 差异分析
+
+## TCGA
+
+TCGA里的标准化RSEM数据，可用非参检验wilcox test. GEO的raw count数据则用`Deseq2`。表达相关性就用pearson检验。
+
+```{r}
+RNASeq2 <- data_tcga@RNASeq2GeneNorm
+RNASeq2_log <- log2(RNASeq2)
+RNASeq2_log[is.infinite(RNASeq2_log)] <- -9 # 文中是将负无穷的值人为赋值成-9
+NRARP <- data.frame(NRARP = RNASeq2_log['NRARP',])
+```
+
+处理TCGA编号，可以用TCGAutils包里的函数，或者用之前教过的方法，反正原理是一样的。
+
+先看看有几种样本：
+
+```{r}
+table(substr(rownames(NRARP), 14, 15))
+```
+
+如果06不要的话：
+
+```{r message = FALSE}
+NRARP$sample <- ifelse(TCGAsampleSelect(rownames(NRARP), '11'), 'Normal', 'Tumor')
+NRARP <- NRARP[!TCGAsampleSelect(rownames(NRARP), '06'),]
+```
+
+这样就可以画图：
+
+```{r}
+# boxplot(log2(NRARP)~sample, data = NRARP) 其实这种画法也可以，但作者应该是用了以下的方法
+NRARP_tumor <- NRARP$NRARP[NRARP$sample == 'Tumor']
+NRARP_normal <- NRARP$NRARP[NRARP$sample == 'Normal']
+boxplot(NRARP_tumor, NRARP_normal, names =c('tumor', 'normal'), col = c('red', 'blue'), ylab = 'NRARP RSEM', main = 'TCGA NRARP')
+```
+
+Wilcox检验看差异：
+
+```{r}
+wilcox.test(NRARP~sample, data = NRARP)
+```
+
+log2 FC:
+
+```{r}
+mean(NRARP_tumor) - mean(NRARP_normal)
+```
+
+因为这是已经log2变换过的数值，所以求log2 FC时，平均数之后不是做比值，而是做减法！这点要小心。
+
+如果用未变换过的表达值计算，可以复习一下高中数学自己推导一下。但是因为要算乘积，数值太大了，会被识别成Inf，无穷。所以就不演示了。
+
+Fig1 d应该来自cBioportal，略。
+
+## GEO
+
+用raw count数据，Deseq2分析。
+
+
+
+# TCGA中的相关性分析
+
+## Fig2 散点图
+
+```{r fig.cap = 'Fig2 b/c/d', message = FALSE}
+corMatrix <- data.frame(t(RNASeq2_log[c("NRARP", "NOTCH1", "NOTCH3", "NOTCH4","ZEB1"),]))
+corMatrix <- corMatrix[!TCGAsampleSelect(rownames(corMatrix), '11'),]
+cor1 <- ggscatter(corMatrix, x = 'NRARP', y = 'NOTCH1', cor.coef = TRUE, size = .5)
+cor2 <- ggscatter(corMatrix, x = 'NRARP', y = 'NOTCH3', cor.coef = TRUE, size = .5)
+cor3 <- ggscatter(corMatrix, x = 'NRARP', y = 'NOTCH4', cor.coef = TRUE, size = .5)
+ggarrange(plotlist = list(NULL,cor1, cor2, cor3))
+```
+
+## Fig3 组合
+
+```{r fig.cap = 'Fig3 b'}
+p2 <- ggscatter(corMatrix, x = 'NRARP', y = 'ZEB1',
+                size = 0.5, cor.coef = TRUE,
+                xlab = 'NRARP RSEM',
+                ylab = 'ZEB1 RSEM')
+p2
+```
+
+## 相关性柱状图
+
+先筛选log2 RNASeq2中的感兴趣的基因，并排除非肿瘤样本，转置做成以行为样本、以列为基因的矩阵。
+
+```{r message = FALSE}
+cor_candidate <- RNASeq2_log[c("NRARP", "ITGA5", "CDH2", "LAMA4", "LAMB1", "LAMC3", "ACTA2", "VIM", "ZEB1", "SNAI1", "SNAI2", "TWIST1", "FOXC2"), ]
+cor_candidate <- t(cor_candidate)
+cor_candidate <- cor_candidate[!TCGAsampleSelect(rownames(cor_candidate), '11'),]
+```
+
+对矩阵批量做pearson相关性分析。
+
+话说本文是用pearson，不过cBioportal会选用spearman。我们更推荐spearman，因为pearson要求满足正态分布，在变量较多的情况下，并不一定都能满足，spearman在批量处理时更为稳妥。如果要改，则在以下`correlate()`中，通过`method`参数指定就好。
+
+```{r}
+cor_mat <- cor_candidate %>% correlate() %>% focus(NRARP)
+cor_mat$path <- c(rep('Cell surface', 2), rep('ECM', 3), rep('Cytoskeleton', 2), rep('EMT TFs', 5))
+cor_mat$rowname <- factor(cor_mat$rowname, levels = cor_mat$rowname)
+```
+
+做图。
+
+```{r fig.cap='Fig3 a'}
+p1 <- ggplot(cor_mat, aes(x = rowname, y = NRARP)) +
+  geom_bar(stat = 'identity', width = 0.5, fill = '#ff4466') +
+  scale_y_continuous(breaks = seq(0, 0.6, by = 0.1), limits = c(-0.04, 0.6)) +
+  geom_bar(aes(y = -0.04, fill = path), stat = 'identity', width = 1) +
+  labs(x = NULL, y = 'correlation coefficients') +
+  ggtitle(label = 'Positive correlated EMTs') +
+  theme(axis.text.x = element_text(angle = 45),
+        panel.grid.major.y = element_line(color = 'gray'),
+        axis.ticks.x = element_line(colour = 0),
+        axis.line.y = element_line(color = 'gray'),
+        plot.title = element_text(hjust = 0.5, size = 16),
+        legend.box.margin = unit(c(1,1,1,2), 'cm'),
+        legend.title = element_text(color = 0),
+        legend.text = element_text(size = 10),
+        axis.title.y = element_text(size = 14))
+p1
+```
+
+# 通路富集分析
+
+GSEA软件。KEGG用来注释。用FC来确定上调通路富集。用与NRARP的相关系数确定正相关富集通路。
+
+# 生存分析
+
+## 常规方法
+
+`survival`包（`R 3.2.3`），log rank test 法检验生存与NRARP基因高低表达之间的关系。
+
+用本流程无法复现文中的图，是因为，作者们是手动下载Firehose网站上的“gdac.broadinstitute.org_THCA.Merge_Clinical.Level_1.2016012800.0.0.tar.gz”这个文件，再读取到R中进行处理。而我们介绍的`RTCGAToolbox`包下载的是“gdac.broadinstitute.org_THCA.Clinical_Pick_Tier1.Level_4.2016012800.0.0.tar.gz”。
+
+这两个文件的生存时间信息不一样。然后去TCGA官网上查找，THCA的临床文件中，关于随访时间的有你4个：
+
+ * nationwidechildrens.org_clinical_follow_up_v2.0_nte_thca.txt
+ 
+ * nationwidechildrens.org_clinical_follow_up_v4.0_thca.txt
+ 
+ * nationwidechildrens.org_clinical_follow_up_v4.0_nte_thca.txt
+ 
+ * nationwidechildrens.org_clinical_follow_up_v2.0_thca.txt
+ 
+ 其中两个“nte”代表*New Tumor Event*，应该是指转移等等。只看另两个的话，v4.0的信息是和`RTCGAToolbox`包下载的一至，v2.0会缺一部分信息。
+ 
+所以，下面我们采用`RTCGAToolbox`下载的数据来实现文章的设计意图。至于要复现文章的图，可以下载相关文件，再根据文章的补充材料003提供的代码进行学习。
+
+先提取NRARP中肿瘤组织的数据：
+
+```{r message = FALSE}
+NRARP2 <- as.matrix(RNASeq2_log["NRARP", ])
+sample_tumor <- rownames(NRARP2)[TCGAsampleSelect(rownames(NRARP2), '01')]
+NRARP_tumor <- data.frame(NRARP = NRARP2[sample_tumor,])
+```
+
+再提取临床数据，并整理时间信息和编号：
+
+```{r}
+clin <- data_tcga@clinical
+clin$days_to_last_followup[is.na(clin$days_to_last_followup)] <- clin$days_to_death[is.na(clin$days_to_last_followup)]
+clin$id <- rownames(clin)
+```
+
+转化数据类型：
+
+```{r}
+clin <- within(clin, {
+  days_to_last_followup <- as.numeric(days_to_last_followup)
+  vital_status <- as.numeric(vital_status)
+})
+```
+
+再调整`NRARP_tumor`的编号，到做成一样的格式和列名
+
+```{r message = FALSE}
+NRARP_tumor$id <- TCGAbarcode(rownames(NRARP_tumor), participant = TRUE)
+NRARP_tumor$id <- tolower(gsub('-', '.', NRARP_tumor$id))
+```
+
+再合并：
+
+```{r}
+clin_tumor <- merge(clin, NRARP_tumor, by = 'id')
+```
+
+按文章的意思，把NRARP的log2表达分成三组，上中下1/3组，再把中间的组给删掉：
+
+```{r}
+clin_tumor$expression <- cut(clin_tumor$NRARP, 
+                             breaks = quantile(clin_tumor$NRARP, c(0, 1/2, 1)),
+                             labels = c('Low', 'High'), include.lowest = TRUE)
+levels(clin_tumor$expression)
+#clin_tumor <- clin_tumor[clin_tumor$expression != 'Medium',]
+#clin_tumor$expression <- as.factor(as.character(clin_tumor$expression))
+#levels(clin_tumor$expression)
+tapply(clin_tumor$NRARP, clin_tumor$expression, range)
+```
+
+拟合生存模型并做图：
+
+```{r}
+su <- Surv(time = clin_tumor$days_to_last_followup,
+           event = clin_tumor$vital_status)
+fit <- survfit(su~expression, data = clin_tumor)
+plot(fit, col = c('red', 'blue'), mark.time = T)
+legend('bottomright', legend = c('High', 'Low'), lty = 1, col = c('red', 'blue'))
+```
+
+两组差异：
+
+```{r}
+survdiff(su~expression, data = clin_tumor)
+```
+
+## 作者的思路
+
+选择最低1/3、最高1/3为分组，也是不太常见的一种做法。不过我们可以用作者提供的数据复现这个问题，试图理解作者的思路。
+
+下载补充材料中的数据和脚本，当然数据也可以去Broad Institute下载我们提到过的“Merge Clinical”文件。
+
+不过你会发现作者的脚本太乱了，以下是我整理、改写过后的脚本，来梳理一下思路。
+
+先读取.txt文件，并选取要用到的数据，包括受试者ID，两列随访时间、生存状态：
+
+```{r}
+clinical <- read.delim("../data/THCA.clin.merged.txt", header = T,
+                       sep="\t", row.names = 1)
+
+clinical2 <- clinical[c("patient.bcr_patient_barcode",
+                        "patient.days_to_death",
+                        "patient.vital_status",
+                        "patient.days_to_last_followup"), ]
+
+```
+
+然后稍做处理，把它换个方向，转变成数据框，把太长的列名修改短一点，方便辨认。再把属性“`names`”给去除，这一步不是必要的，但是我们不需要这些属性，我也觉得它也影响视野，所以做为一个洁癖我选择清除。
+
+```{r}
+clinical2 <- data.frame(t(clinical2))
+colnames(clinical2) <- c('id', 'death','status', 'time')
+clinical2 <- within(clinical2,{
+  attr(id, 'names') <- NULL
+  attr(death, 'names') <- NULL
+  attr(status, 'names') <- NULL
+  attr(time, 'names') <- NULL
+})
+```
+
+然后照例是处理`id`格式：
+
+```{r}
+clinical2$id <- gsub('-', '.', clinical2$id)
+```
+
+然后依然是熟悉的合并基因表达值、转换类型、处理两列时间。
+
+```{r}
+clin_tumor2 <- merge(clinical2, NRARP_tumor, by = 'id')
+clin_tumor2 <- within(clin_tumor2, {
+  death <- as.numeric(as.character(death))
+  time <- as.numeric(as.character(time))
+})
+
+clin_tumor2 <- within(clin_tumor2, {
+  time[is.na(time)] <- death[is.na(time)]
+})
+```
+
+然后分组。我们先按常见的做法，以中位数为界分两组：
+
+```{r}
+clin_tumor2$expr <- ifelse(clin_tumor2$NRARP < median(clin_tumor2$NRARP), 'Low', 'High')
+```
+
+拟合模型并做图：
+
+```{r}
+su2 <- Surv(time = clin_tumor2$time,
+            event = clin_tumor2$status == 'dead')
+fit2 <- survfit(su2 ~ expr, clin_tumor2)
+plot(fit2, col = c('red', 'blue'), mark.time = T, lty = 1)
+legend('bottomleft', legend = c('High', 'Low'), col = c('red', 'blue'), lty = 1)
+```
+
+然后求差异：
+
+```{r}
+survdiff(su2 ~ expr, clin_tumor2)
+```
+
+这样发现，P值是没有达到统计学差异的门槛的。如果按文章中的分组，上1/3和下1/3，就变了天了：
+
+```{r}
+clin_tumor2$epxr2 <- cut(clin_tumor2$NRARP,
+                         quantile(clin_tumor2$NRARP, seq(0, 1, by = 1/3)),
+                         labels = c('Low', 'Medium', 'High'))
+clin_tumor3 <- clin_tumor2[clin_tumor2$epxr2 != 'Medium',]
+clin_tumor3$epxr2 <- as.character(clin_tumor3$epxr2)
+su3 <- Surv(time = clin_tumor3$time,
+            event = clin_tumor3$status == 'dead')
+fit3 <- survfit(su3 ~ clin_tumor3$epxr2)
+p3 <- plot(fit3, col = c('red', 'blue'), mark.time = T, lty = 1)
+legend('bottomleft', legend = c('High', 'Low'), col = c('red', 'blue'), lty = 1)
+levels(as.factor(clin_tumor3$epxr2))
+survdiff(su3 ~ epxr2, clin_tumor3)
+```
+
+如果用`survminer`画：
+
+```{r}
+p4 <-ggsurvplot(fit3, clin_tumor3, pval = TRUE, legend = 'right', legend.labs = c('High','Low'), legend.title = '')
+p4
+```
+
+图没有变多少，但p值让文章更方便论述了，翻身农奴把歌唱〜
+
+我想，作者会不会从这里急中生智，改变了分组策略，得到了我们看得见的文章〜
+
+# 拼图
+
+```{r}
+ggarrange(p1,
+          ggarrange(p2, p4$plot, ncol = 2, labels = c('B', 'C'), hjust = 0),
+          nrow = 2, labels = c('A', NULL), hjust = 0)
+```
+
+或者用`layout()`的方法：
+
+```{r}
+
+```
+
+# 附录：从KEGG获取NOTCH通路基因
+
+```{r}
+library(rvest)
+library(plyr)
+url <- 'https://www.genome.jp/dbget-bin/www_bget?pathway+hsa04330'
+notch_genes <- read_html(url) %>%
+  html_nodes('td.td31 table') %>% html_table()
+notch_genes <- ldply(notch_genes)
+notch_genes <- notch_genes[17: 64,]
+notch_genes$genename <- sapply(notch_genes$X2, function(x) unlist(strsplit(x, split = ';'))[1])
+```
+
+# References
