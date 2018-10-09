@@ -309,13 +309,13 @@ attributes</code></pre></div>
 <p>现在我们选好了数据库和数据集，也知道了属性、筛选器及其取值，就可建立查询了。先看一个简单的问题：我们有一组Affymetrix的ID，来自u133plus2平台，现在想要找到对应的EntrezGene ID。</p>
 <p>那么u133plus2就是<code>filter</code>，<code>value</code>就是我们的那些Affymetrix ID。而输出（<code>attributes</code>）就是要同时有u133plus2和EntrezGene，这样就能映射匹配了。</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">affyids &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;202763_at&quot;</span>,<span class="st">&quot;209310_s_at&quot;</span>,<span class="st">&quot;207500_at&quot;</span>)
-<span class="kw">getBM</span>(<span class="dt">attributes=</span><span class="kw">c</span>(<span class="st">'affy_hg_u133_plus_2'</span>, <span class="st">'entrezgene'</span>), 
+<span class="kw">getBM</span>(<span class="dt">attributes=</span><span class="kw">c</span>(<span class="st">'affy_hg_u133_plus_2'</span>, <span class="st">'entrezgene'</span>, <span class="st">'hgnc_symbol'</span>), 
       <span class="dt">filters =</span> <span class="st">'affy_hg_u133_plus_2'</span>, 
       <span class="dt">values =</span> affyids, 
       <span class="dt">mart =</span> ensembl)</code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["affy_hg_u133_plus_2"],"name":[1],"type":["chr"],"align":["left"]},{"label":["entrezgene"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"209310_s_at","2":"837"},{"1":"207500_at","2":"838"},{"1":"202763_at","2":"836"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["affy_hg_u133_plus_2"],"name":[1],"type":["chr"],"align":["left"]},{"label":["entrezgene"],"name":[2],"type":["int"],"align":["right"]},{"label":["hgnc_symbol"],"name":[3],"type":["chr"],"align":["left"]}],"data":[{"1":"209310_s_at","2":"837","3":"CASP4"},{"1":"207500_at","2":"838","3":"CASP5"},{"1":"202763_at","2":"836","3":"CASP3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>

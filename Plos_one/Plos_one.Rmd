@@ -391,12 +391,6 @@ ggarrange(p1,
           nrow = 2, labels = c('A', NULL), hjust = 0)
 ```
 
-或者用`layout()`的方法：
-
-```{r}
-
-```
-
 # 附录：从KEGG获取NOTCH通路基因
 
 ```{r}
