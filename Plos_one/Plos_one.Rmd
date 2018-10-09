@@ -120,6 +120,21 @@ Fig1 d应该来自cBioportal，略。
 
 用raw count数据，Deseq2分析。
 
+```{r}
+NRARP_GEO <- Read_counts[Read_counts$id == 'ENSG00000198435',][,-1]
+NRARP_GEO <- t(NRARP_GEO)
+NRARP_GEO <- data.frame(title = rownames(NRARP_GEO),
+                        NRARP = NRARP_GEO[,1])
+# NRARP_GEO$NRARP <- log2(NRARP_GEO$NRARP)
+group <- data_geo@phenoData@data
+group <- group[,c('title', 'sample type:ch1')]
+group$title <- substring(group$title, 2)
+NRARP_group <- merge(NRARP_GEO, group, by = 'title')
+boxplot(NRARP~`sample type:ch1`, data = NRARP_group)
+```
+
+查看是否已经进行中位数中心化：
+
 
 
 # TCGA中的相关性分析
