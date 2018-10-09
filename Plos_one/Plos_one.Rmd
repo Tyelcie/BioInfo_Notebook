@@ -393,9 +393,16 @@ ggarrange(p1,
 
 # 附录：从KEGG获取NOTCH通路基因
 
-```{r}
+载入相关的包：
+
+```{r message = FALSE}
 library(rvest)
 library(plyr)
+```
+
+爬取数据并整理：
+
+```{r}
 url <- 'https://www.genome.jp/dbget-bin/www_bget?pathway+hsa04330'
 notch_genes <- read_html(url) %>%
   html_nodes('td.td31 table') %>% html_table()

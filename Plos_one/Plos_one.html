@@ -559,14 +559,10 @@ p4</code></pre></div>
 </div>
 <div id="keggnotch" class="section level1">
 <h1><span class="header-section-number">8</span> 附录：从KEGG获取NOTCH通路基因</h1>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rvest)</code></pre></div>
-<pre><code>## Loading required package: xml2</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(plyr)</code></pre></div>
-<pre><code>## 
-## Attaching package: 'plyr'</code></pre>
-<pre><code>## The following object is masked from 'package:ggpubr':
-## 
-##     mutate</code></pre>
+<p>载入相关的包：</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rvest)
+<span class="kw">library</span>(plyr)</code></pre></div>
+<p>爬取数据并整理：</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">url &lt;-<span class="st"> 'https://www.genome.jp/dbget-bin/www_bget?pathway+hsa04330'</span>
 notch_genes &lt;-<span class="st"> </span><span class="kw">read_html</span>(url) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">html_nodes</span>(<span class="st">'td.td31 table'</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">html_table</span>()
