@@ -14,7 +14,7 @@ bibliography: ../doc/ref.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = FALSE, fig.align = 'center', out.width = '80%')
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = TRUE, fig.align = 'center', out.width = '80%')
 ```
 
 # 启动
@@ -41,7 +41,7 @@ library(tidyr)
 
 # 下载
 
-```{r message = FALSE,eval = FALSE}
+```{r message = FALSE}
 data_tcga <- getFirehoseData('THCA', destdir = '../data/', RNASeq2GeneNorm = TRUE)
 data_geo <- getGEO('GSE64912', destdir = '../data/')
 data_geo <- data_geo$GSE64912_series_matrix.txt.gz
@@ -49,14 +49,14 @@ data_geo <- data_geo$GSE64912_series_matrix.txt.gz
 
 然后可以保存成`.rds`，便于以后读取。
 
-```{r eval = FALSE}
+```{r}
 saveRDS(data_tcga, '../data/data_tcga.rds')
 saveRDS(data_geo, '../data/data_geo.rds')
 ```
 
 下次就载入就可以了：
 
-```{r}
+```{r eval = FALSE}
 data_tcga <- readRDS('../data/data_tcga.rds')
 data_geo <- readRDS('../data/data_geo.rds')
 ```
