@@ -125,7 +125,7 @@ NRARP_GEO <- Read_counts[Read_counts$id == 'ENSG00000198435',][,-1]
 NRARP_GEO <- t(NRARP_GEO)
 NRARP_GEO <- data.frame(title = rownames(NRARP_GEO),
                         NRARP = NRARP_GEO[,1])
-# NRARP_GEO$NRARP <- log2(NRARP_GEO$NRARP)
+NRARP_GEO$NRARP <- log2(NRARP_GEO$NRARP + 1)
 group <- data_geo@phenoData@data
 group <- group[,c('title', 'sample type:ch1')]
 group$title <- substring(group$title, 2)

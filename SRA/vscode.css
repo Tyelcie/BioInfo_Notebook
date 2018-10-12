@@ -1,0 +1,291 @@
+body {
+  background-color: #1e1e1e;
+  margin-top: 2em;
+  margin: auto;
+  overflow: visible;
+  padding-left: 2em;
+  padding-right: 2em;
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif,'Noto Sans S Chinese Light','Noto Sans S Chinese Heavy';
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+#header {
+  margin-top: 3em;
+  text-align: center;
+  color: #9cdcfe;
+}
+
+#TOC {
+  clear: both;
+  padding: 4px;
+  width: 15em;
+  background-color: transparent;
+  line-height: 1.5;
+  color: #d4d4d4;
+  border-left: 2px solid #d4d4d4;
+}
+
+#TOC .toctitle {
+  font-weight: bold;
+  font-size: 16px;
+  margin-left: 0;
+}
+
+#TOC ul {
+  padding-left: 40px;
+  margin-left: -1.5em;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  color: #9cdcfe;
+  background-color: transparent;
+}
+#TOC ul ul {
+  margin-left: -2em;
+  color: #9cdcfe;
+  background-color: transparent;
+}
+#TOC li {
+  line-height: 16px;
+  color: #9cdcfe;
+  background-color: transparent;
+}
+
+table {
+  margin: 1em auto;
+  border-width: 1px;
+  border-color: #bbbbbb;
+  border-style: outset;
+  border-collapse: collapse;
+}
+table th {
+  border-width: 2px;
+  padding: 5px;
+  border-style: inset;
+}
+table td {
+  border-width: 1px;
+  border-style: inset;
+  line-height: 18px;
+  padding: 5px 5px;
+}
+table, table th, table td {
+  border-left-style: none;
+  border-right-style: none;
+}
+table thead, table tr.even {
+  background-color: #1e1e1e;
+}
+
+p {
+  margin: 0.8em 0;
+  color: #d4d4d4;
+}
+
+p .citation {
+  font-style: italic;
+}
+
+blockquote {
+  background-color: #1e1e1e;
+  padding: 0.25em 0.75em;
+  color: #9cdcfe;
+}
+
+hr {
+  border-style: solid;
+  border: none;
+  border-top: 1px solid #777;
+  margin: 0.5em 0;
+  color: #d4d4d4;
+}
+
+dl {
+  margin-left: 0;
+}
+dl dd {
+  margin-bottom: 13px;
+  margin-left: 13px;
+}
+dl dt {
+  font-weight: bold;
+}
+
+ul {
+  margin-top: 0;
+}
+ul li {
+  list-style: circle outside;
+  color: #d4d4d4;
+}
+
+ul ul {
+  margin-bottom: 0;
+}
+
+p > code, li > code {
+  background-color: #272727;
+  color: #9cdcfe;
+  padding: 2px 0;
+}
+
+img {
+  background-color: #1e1e1e;
+  padding: 2px;
+  border: 1px solid #d4d4d4;
+  border-radius: 3px;
+  margin: 0 5px;
+}
+
+.pagedtable-header-name{
+  color: #9cdcfe;
+}
+
+.pagedtable .odd{
+  color: #d4d4d4;
+}
+
+.pagedtable .even{
+  color: #d4d4d4;
+  background-color: #2e2e2e;
+}
+
+h1 {
+  margin-top: 1em;
+  font-size: 200%;
+  line-height: 40px;
+  color: #9cdcfe;
+  font-weight: bold;
+}
+
+h2, h3, h4, h5, h6 {
+  padding-top: 10px;
+  padding-bottom: 0.2em;
+  color: #9cdcfe;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 180%;
+}
+
+h3 {
+  font-size: 150%;
+}
+
+h4 {
+  font-size: 120%;
+}
+
+h5, h6 {
+  font-size: 105%;
+}
+
+a {
+  color: #9cdcfe;
+  text-decoration: none;
+  }
+a:hover {
+  color: #6666ff;
+}
+a:visited {
+  color: #569cd6;
+}
+a:visited:hover {
+  color: #7777ff;
+}
+a[href^="http:"] {
+  text-decoration: underline;
+}
+a[href^="https:"] {
+  text-decoration: underline;
+}
+
+pre, code {
+  background-color: #1e1e1e;
+  border-radius: 3px;
+  white-space: pre-wrap;    /* Wrap long lines */
+}
+
+pre {
+  border-radius: 3px;
+  margin: 5px 0 10px 0;
+  padding: 10px;
+  color: #9cdcfe;
+  font-size: 1em;
+}
+pre:not([class]) {
+  background-color: #1e1e1e;
+  color: #569cd6;
+}
+
+code { /* what exactly? */
+  font-family: Consolas, Monaco, 'Courier New', monospace;
+  color: #F00;
+}
+
+/* to validate the following customized syntex highlighting style, we must specify one of the systemic style except default, to inherit the css keyword. otherwise there would be too much work. here we use pygments. */
+
+/* the color scheme was simmulated from Visual studio code. */
+
+.sourceCode .r .dv { /* numbers */
+  color: #b5ce89;
+}
+
+.sourceCode .r .fl { /* float */
+  color: #b5ce89;
+}
+
+.sourceCode .r .cf { /* control flow */
+  color: #c586c0;
+}
+
+.sourceCode .r .ot { /* object type? */
+  color: #569cd6;
+}
+
+.sourceCode .r .op { /* operators */
+  color: #569cd6;
+}
+
+.sourceCode .r .st { /* strings */
+  color: #ce9178;
+}
+
+.sourceCode .r .dt { /* params */
+  color: #9cdcfe;
+}
+
+.sourceCode .r .kw { /*keyword. etc, fuction */
+  color: #dcdcaa;
+  font-weight: bold;
+}
+
+.sourceCode .r .co { /* not used */
+  color: #608b4e;
+  font-style: italic;
+}
+
+/* all the the following arguments were not used. Just keep an eye.*/
+
+.sourceCode .r .punc { /* punctuation, not used */
+  color: #d4d4d4;
+}
+
+.sourceCode .r .bn { /* punctuation, not used */
+  color: #d4d4d4;
+}
+
+.sourceCode .r .ch { /* punctuation, not used */
+  color: #d4d4d4;
+}
+
+.sourceCode .r .al { /* punctuation, not used */
+  color: #d4d4d4;
+}
+
+.sourceCode .r .fu { /* punctuation, not used */
+  color: #d4d4d4;
+}
+
+.sourceCode .r .er { font-weight: bold; }

@@ -1,0 +1,39 @@
+---
+title: "SRA - RNA seq analysis"
+auther: ""
+output:
+  html_document:
+    highlight: pygments
+    css: vscode.css
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    number_section: true
+    fig_caption: true
+bibliography: ref.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = TRUE, fig.align = 'center')
+```
+
+# 启动
+
+yy
+```{r,message=FALSE}
+library(SRAdb)
+library(GenomicRanges)
+```
+
+## 二级标题
+
+```{r}
+
+```
+
+
+# References
+
+貌似这个标题只能用英文。如果有参考文献，请删除这段说明文字，只留下一个标题。开头yaml段落的`bibliography`指向引文bib文件。如果没有引文，则须删除`bibliography`字段。
+
+If any biblography is specified, please delet this note, and only reserve the Reference header, which should remain exactly the current character. If no biblography is specified, please delet the `biblography` in the yaml.
