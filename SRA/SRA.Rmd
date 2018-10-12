@@ -19,10 +19,9 @@ knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = TRUE, fig.align = 'cente
 
 # 启动
 
-yy
+
 ```{r,message=FALSE}
 library(SRAdb)
-library(GenomicRanges)
 ```
 
 ## 二级标题
