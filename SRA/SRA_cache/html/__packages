@@ -1,0 +1,7 @@
+base
+RSQLite
+BiocGenerics
+graph
+bitops
+RCurl
+SRAdb
