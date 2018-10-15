@@ -1,0 +1,54 @@
+---
+title: "SRA_SRAdb"
+auther: ""
+output:
+  html_document:
+    highlight: pygments
+    css: vscode.css
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    number_section: true
+    fig_caption: true
+    df_print: paged
+bibliography: ref.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = TRUE, fig.align = 'center')
+```
+
+# 启动
+
+```{r,message=FALSE}
+library(SRAdb)
+```
+
+# 下载整个数据库
+
+```{r}
+sqlfile <-'../data/SRAmetadb.sqlite'
+if(!file.exists('../data/SRAmetadb.sqlite')){
+  sqlfile <<- getSRAdbFile()
+}
+sra_con <- dbConnect(SQLite(),sqlfile)
+```
+
+# 查看某个研究的信息
+
+```{r message = FALSE}
+sraInf <- getSRAinfo("SRP052056",sra_con, sraType="sra")
+sraInf
+```
+
+# 将SRA转化为FASTQ
+
+需要用到**SRA Toolkit**里的**fastq-dump**命令，王每个SRA文件执行一之遍。要自己事先装好[**SRA Toolkit**](http://www.sthda.com/english/wiki/install-sra-toolkit)。
+
+R可以用来批量生成这些命令并自动执行。运行以下命令前，
+
+# References
+
+貌似这个标题只能用英文。如果有参考文献，请删除这段说明文字，只留下一个标题。开头yaml段落的`bibliography`指向引文bib文件。如果没有引文，则须删除`bibliography`字段。
+
+If any biblography is specified, please delet this note, and only reserve the Reference header, which should remain exactly the current character. If no biblography is specified, please delet the `biblography` in the yaml.
