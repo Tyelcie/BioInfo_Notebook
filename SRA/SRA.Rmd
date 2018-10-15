@@ -24,10 +24,26 @@ knitr::opts_chunk$set(echo = TRUE, eval = TRUE, cache = TRUE, fig.align = 'cente
 library(SRAdb)
 ```
 
-## 二级标题
+# 下载SRA元文件
+
+打开一个SRA项目主页，右上角$Send to \rightarrow File \rightarrow RunInfo \rightarrow Create File$。
+
+# 下载SRA文件
+
+可以用R口命又 白纟纟日 日日 王目 土工wycrxgjgfal。王但是文件通常很大，以下言法有可能会中断或立卡纟死。
+```{r message = FALSE}
+sri<-read.csv("../data/SraRunInfo.csv", stringsAsFactors = FALSE)
+files<-basename(sri$download_path)
+for(i in 1:length(files)) download.file(sri$download_path[i], paste0('../data/', files[i]))
+```
 
 ```{r}
-
+stopifnot( all(file.exists(files)) ) 
+for(f in files) {
+  cmd = paste("fastq-dump --split-3", f)
+  cat(cmd,"\n")#print the current command
+  system(cmd) # invoke command
+}
 ```
 
 
